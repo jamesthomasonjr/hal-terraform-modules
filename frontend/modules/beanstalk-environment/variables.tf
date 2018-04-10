@@ -12,6 +12,11 @@ variable "stage" {
   default     = "dev"
 }
 
+variable "iac_tags" {
+  type    = "map"
+  default = {}
+}
+
 # Software
 
 variable "solution_stack_name" {
@@ -113,11 +118,6 @@ variable "load_balancer_subnets" {
 variable "load_balancer_visibility" {
   description = "Is this application public or private? (external, internal)"
   default     = "external"
-}
-
-variable "zone_name" {
-  description = "[Optional] Specify hosted zone name to create DNS record for the environment"
-  default     = ""
 }
 
 # Other

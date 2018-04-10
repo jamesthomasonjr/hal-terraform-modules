@@ -8,11 +8,6 @@ output "security_group_id" {
   description = "Security group ID"
 }
 
-output "host" {
-  value       = "${module.tld.hostname}"
-  description = "DNS hostname"
-}
-
 output "alb_dns_name" {
   value       = "${aws_elastic_beanstalk_environment.default.cname}"
   description = "ALB hostname"

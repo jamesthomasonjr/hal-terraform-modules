@@ -15,7 +15,7 @@ output "alb_dns_name" {
 }
 
 output "route53_dns_name" {
-  value = "${(module.default_environment.host != "") ? module.default_environment.host : ""}"
+  value = "${module.dns.hostname != "" ? module.dns.hostname : ""}"
 }
 
 output "alb_security_group_id" {

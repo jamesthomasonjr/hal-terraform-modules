@@ -83,6 +83,11 @@ module "sg" {
       cidr_blocks = "0.0.0.0/0"
     },
   ]
+
+  tags = "${merge(
+    var.iac_tags,
+    map("Name", "${local.product_env_name}")
+  )}"
 }
 
 # Full list of options:
@@ -96,10 +101,7 @@ resource "aws_elastic_beanstalk_environment" "default" {
 
   wait_for_ready_timeout = "${var.wait_for_ready_timeout}"
 
-  # tags {
-  #   Name = "${local.product_env_name}"
-  # }
-
+  tags = "${var.iac_tags}"
 
   ##############################################################################
   # Software
@@ -397,13 +399,4 @@ resource "aws_elastic_beanstalk_environment" "default" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-module "tld" {
-  source = "../route53"
-
-  enabled   = "${var.zone_name != "" ? "true" : "false"}"
-  zone_name = "${var.zone_name}"
-  name      = "${local.product_env_name}"
-  records   = ["${aws_elastic_beanstalk_environment.default.cname}"]
 }
