@@ -4,16 +4,9 @@ locals {
     map("Name", "${var.prefix}-bastion")
   )}"
 
-  volume_tags = "${merge(
-    var.iac_tags,
-    map("Name", "${var.prefix}-bastion")
-  )}"
-}
-
-# Configure the AWS Provider
-provider "aws" {
-  version = "~> 1.8"
-  region  = "${var.aws_region}"
+  default_tags = {
+    iac = "terraform"
+  }
 }
 
 data "aws_ami" "bastion_ami" {
@@ -31,10 +24,6 @@ data "aws_ami" "bastion_ami" {
   }
 }
 
-data "aws_route53_zone" "hosted_zone" {
-  name = "${var.zone_name}"
-}
-
 resource "aws_instance" "bastion" {
   instance_type = "${var.instance_type}"
   ami           = "${data.aws_ami.bastion_ami.id}"
@@ -48,8 +37,17 @@ resource "aws_instance" "bastion" {
 
   user_data = "${file("${path.module}/files/bastion-user-data.sh")}"
 
-  tags        = "${local.bastion_tags}"
-  volume_tags = "${local.volume_tags}"
+  tags = "${merge(
+    var.iac_tags,
+    local.default_tags,
+    local.bastion_tags
+  )}"
+
+  volume_tags = "${merge(
+    var.iac_tags,
+    local.default_tags,
+    local.bastion_tags
+  )}"
 
   lifecycle {
     prevent_destroy = false
@@ -57,15 +55,19 @@ resource "aws_instance" "bastion" {
 }
 
 ################################################################################
-# Security group
+# Security Groups
 ################################################################################
 
 resource "aws_security_group" "bastion_sg" {
   name        = "${var.prefix}-bastion-sg"
-  description = "SG for Hal- For bastion of Hal environment"
+  description = "SG for Hal - For bastion of Hal environment"
   vpc_id      = "${var.vpc_id}"
 
-  tags = "${merge(var.iac_tags, local.bastion_tags)}"
+  tags = "${merge(
+    var.iac_tags,
+    local.default_tags,
+    local.bastion_tags
+  )}"
 }
 
 resource "aws_security_group_rule" "bastion_ssh_ingress" {
@@ -74,7 +76,7 @@ resource "aws_security_group_rule" "bastion_ssh_ingress" {
   from_port = 22
   to_port   = 22
 
-  cidr_blocks       = "${var.allowed_ips}"
+  cidr_blocks       = ["${var.allowed_ip_cidr_blocks}"]
   security_group_id = "${aws_security_group.bastion_sg.id}"
 }
 
@@ -89,11 +91,17 @@ resource "aws_security_group_rule" "bastion_sg_egress" {
 }
 
 ################################################################################
-# Security group
+# DNS
 ################################################################################
 
+data "aws_route53_zone" "hosted_zone" {
+  count = "${var.zone_name != "" ? 1 : 0}"
+  name  = "${var.zone_name}"
+}
+
 resource "aws_route53_record" "default" {
-  count   = 1
+  count = "${var.zone_name != "" ? 1 : 0}"
+
   zone_id = "${data.aws_route53_zone.hosted_zone.zone_id}"
   name    = "${var.prefix}-bastion"
 
