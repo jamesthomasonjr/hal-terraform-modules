@@ -27,12 +27,6 @@ data "aws_elastic_beanstalk_solution_stack" "target_stack" {
   name_regex  = "${local.solution_stack_name}"
 }
 
-# Configure the AWS Provider
-# provider "aws" {
-#   version = "~> 1.8"
-#   region  = "${var.aws_region}"
-# }
-
 data "aws_vpc" "vpc" {
   id = "${var.vpc_id}"
 }

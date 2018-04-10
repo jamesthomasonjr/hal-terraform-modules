@@ -1,7 +1,0 @@
-/.terraform/
-/.dependencies/
-/terraform.tfstate.d/
-
-*.tfstate
-*.tfstate.backup
-*.tfvars
