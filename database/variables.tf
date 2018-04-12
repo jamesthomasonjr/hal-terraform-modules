@@ -59,11 +59,6 @@ variable "rds_engine_version" {
   default = "9.6.3"
 }
 
-variable "rds_tags" {
-  type    = "map"
-  default = {}
-}
-
 # ----------------------------------------------------------------------------------------------------------------------
 # elasticache
 # ----------------------------------------------------------------------------------------------------------------------
@@ -107,9 +102,4 @@ variable "cache_cluster_size" {
 
 variable "cache_port" {
   default = "6379"
-}
-
-variable "cache_tags" {
-  type    = "map"
-  default = {}
 }
