@@ -19,6 +19,10 @@ provider "aws" {
   region  = "${var.aws_region}"
 }
 
+# ----------------------------------------------------------------------------------------------------------------------
+# aurora
+# ----------------------------------------------------------------------------------------------------------------------
+
 module "postgres" {
   source = "modules/postgres"
 
@@ -48,6 +52,10 @@ module "postgres" {
   )}"
 }
 
+# ----------------------------------------------------------------------------------------------------------------------
+# elasticache
+# ----------------------------------------------------------------------------------------------------------------------
+
 module "redis" {
   source = "modules/redis"
 
@@ -75,4 +83,17 @@ module "redis" {
     local.default_tags,
     local.cache_tags
   )}"
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# bastion access to databases
+# ----------------------------------------------------------------------------------------------------------------------
+
+module "bastion_access" {
+  source = "modules/bastion-access"
+
+  bastion_security_group  = "${var.bastion_security_group}"
+  # bastion_security_group  = "${data.terraform_remote_state.bastion.security_group}"
+  database_security_group = "${module.postgres.sg_id}"
+  cache_security_group    = "${module.postgres.sg_id}"
 }

@@ -2,6 +2,18 @@ variable "aws_region" {
   description = "Region where resources get created"
 }
 
+# ----------------------------------------------------------------------------------------------------------------------
+# networking
+# ----------------------------------------------------------------------------------------------------------------------
+
+variable "bastion_security_group" {}
+variable "database_security_group" {}
+variable "cache_security_group" {}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# beanstalk
+# ----------------------------------------------------------------------------------------------------------------------
+
 variable "application_name" {
   description = "Name for the application. Alphanumeric or (hyphen). Must begin with a letter and end with a letter or number."
 }

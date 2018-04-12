@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# local vars
+# ----------------------------------------------------------------------------------------------------------------------
+
 locals {
   product_name     = "${var.application_name}-${var.application_id}"
   product_env_name = "${var.application_name}-${var.application_id}-${var.environment_name}"
@@ -39,33 +43,28 @@ data "aws_vpc" "vpc" {
   id = "${var.vpc_id}"
 }
 
-################################################################################
-# Security Groups
-################################################################################
+# ----------------------------------------------------------------------------------------------------------------------
+# security groups (for application instances)
+# ----------------------------------------------------------------------------------------------------------------------
 
-# https://registry.terraform.io/modules/terraform-aws-modules/security-group/aws/1.15.0
-module "default_environment_alb_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "1.15.0"
+module "security_groups" {
+  source  = "modules/security-groups"
 
-  name        = "${local.product_env_name}-alb-sg"
-  description = "ALB of Beanstalk - ${local.product_env_name}"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  product_env_name = "${local.product_env_name}"
+  vpc_id           = "${data.aws_vpc.vpc.id}"
 
-  ingress_cidr_blocks = ["${var.load_balancer_allowed_incoming_ip_or_sg}"]
-  ingress_rules       = ["http-80-tcp", "https-443-tcp"]
-  egress_rules        = ["http-80-tcp"]
+  allowed_external_ips = ["${var.allowed_external_ips}"]
 
-  tags = "${merge(
-    var.iac_tags,
-    local.default_tags,
-    map("Name", "${local.product_env_name}")
-  )}"
+  bastion_sg_id  = "${var.bastion_security_group}"
+  database_sg_id  = "${var.database_security_group}"
+  cache_sg_id  = "${var.cache_security_group}"
+
+  tags = ["${var.iac_tags}"]
 }
 
-################################################################################
-# Elastic Beanstalk
-################################################################################
+# ----------------------------------------------------------------------------------------------------------------------
+# elastic beanstalk
+# ----------------------------------------------------------------------------------------------------------------------
 
 module "application" {
   source = "modules/beanstalk-application"
@@ -88,7 +87,7 @@ module "default_environment" {
   # load balancing
   healthcheck_path                  = "${var.healthcheck_path}"
   load_balancer_ssl_certificate_arn = "${var.ssl_certificate_arn}"
-  alb_sg                            = "${module.default_environment_alb_sg.this_security_group_id}"
+  alb_sg                            = "${module.security_groups.this_security_group_id}"
   alb_additional_security_groups    = ["${var.load_balancer_additional_sg}"]
   http_listener_enabled             = true
 
@@ -114,9 +113,9 @@ module "default_environment" {
   )}"
 }
 
-################################################################################
-# DNS
-################################################################################
+# ----------------------------------------------------------------------------------------------------------------------
+# dns
+# ----------------------------------------------------------------------------------------------------------------------
 
 module "dns" {
   source = "modules/route53"
