@@ -17,7 +17,7 @@ variable "iac_tags" {
 variable "vpc_id" {}
 variable "subnet_id" {}
 
-variable "allowed_ip_cidr_blocks" {
+variable "allowed_ips" {
   type = "list"
 }
 

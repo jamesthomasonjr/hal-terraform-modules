@@ -1,3 +1,8 @@
+provider "aws" {
+  version = "~> 1.8"
+  region  = "${var.aws_region}"
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # local vars
 # ----------------------------------------------------------------------------------------------------------------------
@@ -28,10 +33,6 @@ locals {
   default_tags = {
     iac = "terraform"
   }
-}
-
-provider "aws" {
-  region = "${var.aws_region}"
 }
 
 data "aws_elastic_beanstalk_solution_stack" "target_stack" {
