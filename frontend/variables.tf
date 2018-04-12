@@ -2,6 +2,16 @@ variable "aws_region" {
   description = "Region where resources get created"
 }
 
+variable "iac_tags" {
+  type    = "map"
+  default = {}
+}
+
+variable "beanstalk_iac_tags" {
+  type    = "map"
+  default = {}
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # networking
 # ----------------------------------------------------------------------------------------------------------------------

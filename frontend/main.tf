@@ -60,7 +60,10 @@ module "security_groups" {
   database_sg_id  = "${var.database_security_group}"
   cache_sg_id  = "${var.cache_security_group}"
 
-  tags = ["${var.iac_tags}"]
+  tags = "${merge(
+    var.iac_tags,
+    local.default_tags
+  )}"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -109,7 +112,7 @@ module "default_environment" {
   load_balancer_visibility = "${var.load_balancer_visibility}"
 
   iac_tags = "${merge(
-    var.iac_tags,
+    var.beanstalk_iac_tags,
     local.default_tags
   )}"
 }
