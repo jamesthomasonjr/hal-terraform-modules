@@ -7,7 +7,7 @@ output "public_host" {
 }
 
 output "public_dns_host" {
-  value = "${aws_route53_record.default.fqdn}"
+  value = "${join("", aws_route53_record.default.*.fqdn)}"
 }
 
 output "security_group" {

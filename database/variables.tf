@@ -11,32 +11,28 @@ variable "vpc_id" {}
 
 # rds
 
-# Security groups to allow access to DB and cache
-# This should be the EC2 security group from the frontend-frontend
-# and the Bastion security group from iac-bastion as well as
-# the iac-agent security group
-variable "rds_allowed_security_groups" {
-  type = "list"
-}
-
-#Aurora requires at least 2 subnets
+# Aurora requires at least 2 subnets
 variable "rds_subnet_ids" {
   type = "list"
 }
 
-variable "rds_master_username" {}
-variable "rds_master_password" {}
+variable "rds_db_name" {
+  default = "hal"
+}
 
 variable "rds_port" {
   default = "5432"
 }
 
-variable "rds_number_of_instances" {
-  default = "1"
-}
+variable "rds_master_username" {}
+variable "rds_master_password" {}
 
 variable "rds_instance_type" {
   default = "db.r4.large"
+}
+
+variable "rds_cluster_size" {
+  default = "1"
 }
 
 variable "rds_backup_retention_days" {
@@ -61,14 +57,6 @@ variable "cache_name" {
   default = "hal-cache"
 }
 
-# Security groups to allow access to DB and cache
-# This should be the EC2 security group from the frontend-frontend
-# and the Bastion security group from iac-bastion as well as
-# the iac-agent security group
-variable "cache_allowed_security_groups" {
-  type = "list"
-}
-
 variable "cache_subnet_ids" {
   type = "list"
 }
@@ -79,10 +67,6 @@ variable "cache_engine" {
 
 variable "cache_engine_version" {
   default = "3.2.10"
-}
-
-variable "cache_node_number" {
-  default = "1"
 }
 
 # if this is true "cache_node_number" has to be 2 or larger
@@ -101,6 +85,10 @@ variable "cache_parameter_group_name" {
 
 variable "cache_instance_type" {
   default = "cache.t2.small"
+}
+
+variable "cache_cluster_size" {
+  default = "1"
 }
 
 variable "cache_port" {

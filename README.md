@@ -26,8 +26,8 @@ This terraform setup is a BYON (Bring your own network) setup and does not creat
 Each component sets up a different piece of Hal's infastructure. See the `README.md` in each module for a description of that modules configuration. These modules should be run in order:
 
 - [bastion](bastion)
-- [frontend](frontend)
 - [database](database)
+- [frontend](frontend)
 
 ### Terragrunt Recommendation
 

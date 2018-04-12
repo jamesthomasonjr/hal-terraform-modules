@@ -119,7 +119,7 @@ module "default_environment" {
 ################################################################################
 
 module "dns" {
-  source = "modules//route53"
+  source = "modules/route53"
 
   enabled   = "${var.dns_zone_name != "" ? "true" : "false"}"
   zone_name = "${var.dns_zone_name}"

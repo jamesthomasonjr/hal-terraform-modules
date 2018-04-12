@@ -1,48 +1,78 @@
-provider "aws" {
-  region = "${var.aws_region}"
+locals {
+  rds_tags = "${merge(
+    var.iac_tags,
+    map("Name", "${var.prefix}-postgres")
+  )}"
+
+  cache_tags = "${merge(
+    var.iac_tags,
+    map("Name", "${var.prefix}-redis")
+  )}"
+
+  default_tags = {
+    iac = "terraform"
+  }
 }
 
-################################################################################
-# Modules
-################################################################################
+provider "aws" {
+  version = "~> 1.8"
+  region  = "${var.aws_region}"
+}
 
 module "postgres" {
-  source = "./postgres"
-
-  prefix                  = "${var.prefix}"
-  vpc_id                  = "${var.vpc_id}"
-  subnet_ids              = ["${var.rds_subnet_ids}"]
-  allowed_security_groups = ["${var.rds_allowed_security_groups}"]
-
-  master_password = "${var.rds_master_password}"
-  port            = "${var.rds_port}"
-
-  instance_type         = "${var.rds_instance_type}"
-  number_of_instances   = "${var.rds_number_of_instances}"
-  backup_retention_days = "${var.rds_backup_retention_days}"
-  engine                = "${var.rds_engine}"
-  engine_version        = "${var.rds_engine_version}"
-
-  iac_tags = "${var.rds_tags}"
-}
-
-module "elasticache" {
-  source = "./elasticache"
+  source = "modules/postgres"
 
   prefix = "${var.prefix}"
-  vpc_id = "${var.vpc_id}"
 
-  name                    = "${var.cache_name}"
-  subnet_ids              = ["${var.cache_subnet_ids}"]
-  engine                  = "${var.cache_engine}"
-  engine_version          = "${var.cache_engine_version}"
-  node_type               = "${var.cache_instance_type}"
-  number_cache_nodes      = "${var.cache_node_number}"
-  maintenance_window      = "${var.cache_maintenance_window}"
-  parameter_group_name    = "${var.cache_parameter_group_name}"
-  port                    = "${var.cache_port}"
-  allowed_security_groups = ["${var.cache_allowed_security_groups}"]
-  automatic_fail_over     = "${var.cache_automatic_fail_over}"
+  vpc_id     = "${var.vpc_id}"
+  subnet_ids = ["${var.cache_subnet_ids}"]
 
-  tags = "${var.cache_tags}"
+  db_name = "${var.rds_db_name}"
+  db_port = "${var.rds_port}"
+
+  master_username = "${var.rds_master_username}"
+  master_password = "${var.rds_master_password}"
+
+  cluster_size  = "${var.rds_cluster_size}"
+  instance_type = "${var.rds_instance_type}"
+
+  engine         = "${var.rds_engine}"
+  engine_version = "${var.rds_engine_version}"
+
+  backup_retention_days = "${var.rds_backup_retention_days}"
+
+  tags = "${merge(
+    var.iac_tags,
+    local.default_tags,
+    local.rds_tags
+  )}"
+}
+
+module "redis" {
+  source = "modules/redis"
+
+  prefix = "${var.prefix}"
+
+  vpc_id     = "${var.vpc_id}"
+  subnet_ids = ["${var.cache_subnet_ids}"]
+
+  name = "${var.cache_name}"
+
+  engine         = "${var.cache_engine}"
+  engine_version = "${var.cache_engine_version}"
+
+  instance_type = "${var.cache_instance_type}"
+  cluster_size  = "${var.cache_cluster_size}"
+  port          = "${var.cache_port}"
+
+  parameter_group_name = "${var.cache_parameter_group_name}"
+
+  maintenance_window   = "${var.cache_maintenance_window}"
+  automatic_fail_over  = "${var.cache_automatic_fail_over}"
+
+  tags = "${merge(
+    var.iac_tags,
+    local.default_tags,
+    local.cache_tags
+  )}"
 }
