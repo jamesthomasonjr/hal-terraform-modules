@@ -99,5 +99,5 @@ module "bastion_access" {
   bastion_security_group  = "${var.bastion_security_group}"
   # bastion_security_group  = "${data.terraform_remote_state.bastion.security_group}"
   database_security_group = "${module.postgres.sg_id}"
-  cache_security_group    = "${module.postgres.sg_id}"
+  cache_security_group    = "${module.redis.sg_id}"
 }
